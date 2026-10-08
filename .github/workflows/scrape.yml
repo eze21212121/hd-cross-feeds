@@ -1,0 +1,37 @@
+name: Scrape official feeds and trigger HD Cross ingest
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scrape Bezares official tables
+        env:
+          PAGES_PER_RUN: '2'
+        run: python3 scripts/bezares.py
+      - name: Commit updated feed
+        run: |
+          git config user.name "hd-cross-feeds-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add feeds state
+          git commit -m "Update feeds" || echo "nothing to commit"
+          git push
+      - name: Trigger HD Cross ingestion
+        env:
+          URL: ${{ secrets.HD_CROSS_INGEST_URL }}
+          SECRET: ${{ secrets.HD_CROSS_INGEST_SECRET }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$SECRET" ]; then echo "ingest secrets not set; skipping"; exit 0; fi
+          curl --show-error --silent --fail-with-body -X POST "$URL/api/ingest/run" -H "Authorization: Bearer $SECRET"
