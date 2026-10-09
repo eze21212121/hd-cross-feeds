@@ -20,7 +20,7 @@ jobs:
       - name: Scrape Bezares official tables
         env:
           PAGES_PER_RUN: '1'
-          PAGE_SIZE: '500'
+          PAGE_SIZE: '150'
         run: python3 scripts/bezares.py
       - name: Commit updated feed
         run: |
