@@ -6,7 +6,7 @@ import csv, json, re, sys, time, os, urllib.parse, urllib.request, http.cookieja
 PAGE = "https://bezares.com/en-us/bezares-chelsea-muncie-pto-correspondence-codes-cross-reference/"
 AJAX = "https://bezares.com/wp-admin/admin-ajax.php?action=get_wdtable&table_id=%d"
 TABLES = {1: "Chelsea", 2: "Muncie"}
-PAGE_SIZE = 2000
+PAGE_SIZE = int(os.environ.get("PAGE_SIZE", "500"))
 PAGES_PER_RUN = int(os.environ.get("PAGES_PER_RUN", "10"))  # per table
 UA = "Mozilla/5.0 (compatible; HDCrossFeedBot/1.0; +https://github.com/eze21212121)"
 FIELDS = ["manufacturer","part_number","description","related_manufacturer","related_part_number",
